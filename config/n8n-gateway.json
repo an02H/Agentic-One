@@ -1,0 +1,75 @@
+{
+  "name": "Agentic-One :: Chat Gateway",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chat-gateway",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-gateway-001",
+      "name": "Webhook Gateway",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [200, 300],
+      "webhookId": "agentic-one-chat-v1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://192.168.10.216:11434/api/generate",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "model",  "value": "mistral-nemo" },
+            { "name": "prompt", "value": "={{ $json.body.prompt }}" },
+            { "name": "stream", "value": "false" }
+          ]
+        },
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "ollama-inference-001",
+      "name": "Ollama Inference",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "response",
+              "value": "={{ $json.response }}"
+            },
+            {
+              "name": "model",
+              "value": "={{ $json.model }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-response-001",
+      "name": "Format Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [720, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Gateway": {
+      "main": [ [ { "node": "Ollama Inference", "type": "main", "index": 0 } ] ]
+    },
+    "Ollama Inference": {
+      "main": [ [ { "node": "Format Response", "type": "main", "index": 0 } ] ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

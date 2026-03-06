@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic-One | Lab Monitor</title>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --border: #30363d;
+            --blue: #58a6ff;
+            --green: #3fb950;
+            --orange: #d29922;
+            --red: #f85149;
+            --text: #c9d1d9;
+            --muted: #8b949e;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Courier New', monospace; background: var(--bg); color: var(--text); padding: 24px; }
+        header { border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 24px; }
+        header h1 { color: var(--blue); font-size: 1.4rem; }
+        header p  { color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 18px;
+        }
+        .card .label { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .card .value { font-size: 1.8rem; font-weight: bold; margin: 8px 0 4px; }
+        .card .bar-bg { background: var(--border); border-radius: 4px; height: 6px; margin-top: 8px; }
+        .card .bar-fill { height: 6px; border-radius: 4px; transition: width 0.6s ease; }
+        .ok   .bar-fill { background: var(--green); }
+        .warn .bar-fill { background: var(--orange); }
+        .crit .bar-fill { background: var(--red); }
+        .ok   .value    { color: var(--green); }
+        .warn .value    { color: var(--orange); }
+        .crit .value    { color: var(--red); }
+        .status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin-top: 6px;
+        }
+        footer { margin-top: 32px; color: var(--muted); font-size: 0.78rem; text-align: center; }
+        #last-update { color: var(--muted); font-size: 0.78rem; }
+        .swap-ok   { background: #1a3a1a; color: var(--green); }
+        .swap-warn { background: #3a2a0a; color: var(--orange); }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>⚡ Agentic-One — Lab Monitor</h1>
+        <p>VM : 192.168.10.216 (an02@docker) &nbsp;|&nbsp; Rust/Actix · Port 7070 &nbsp;|&nbsp; <span id="last-update">—</span></p>
+    </header>
+
+    <div class="grid" id="stats">
+        <div class="card"><div class="label">Chargement…</div></div>
+    </div>
+
+    <footer>
+        Dashboard temporaire — sera intégré à l'UI principale (Agentic-One v1.0)<br>
+        Désactivation : <code>sudo systemctl stop lab-monitor</code>
+    </footer>
+
+    <script>
+        function getClass(pct) {
+            if (pct < 60) return 'ok';
+            if (pct < 85) return 'warn';
+            return 'crit';
+        }
+
+        async function update() {
+            try {
+                const res  = await fetch('/metrics');
+                const data = await res.json();
+
+                const cpuPct = Math.round(data.cpu_usage);
+                const ramPct = Math.round((data.ram_used / data.ram_total) * 100);
+                const swapOk = data.swap_used === 0;
+
+                document.getElementById('stats').innerHTML = `
+                    <div class="card ${getClass(cpuPct)}">
+                        <div class="label">CPU Usage</div>
+                        <div class="value">${cpuPct}%</div>
+                        <div class="bar-bg"><div class="bar-fill" style="width:${cpuPct}%"></div></div>
+                    </div>
+                    <div class="card ${getClass(ramPct)}">
+                        <div class="label">RAM</div>
+                        <div class="value">${(data.ram_used/1024).toFixed(1)} GB</div>
+                        <div class="bar-bg"><div class="bar-fill" style="width:${ramPct}%"></div></div>
+                        <small style="color:var(--muted)">${(data.ram_total/1024).toFixed(0)} GB total · ${ramPct}% utilisé</small>
+                    </div>
+                    <div class="card">
+                        <div class="label">Swap</div>
+                        <div class="value" style="font-size:1.2rem">${swapOk ? '✅ OFF' : '⚠️ ' + data.swap_used + ' Mo'}</div>
+                        <span class="status ${swapOk ? 'swap-ok' : 'swap-warn'}">${swapOk ? 'Optimal LLM' : 'ACTIF — risque latence'}</span>
+                    </div>
+                    <div class="card ok">
+                        <div class="label">Services</div>
+                        <div style="margin-top:8px; font-size:0.85rem; line-height:1.8">
+                            <div>🟢 Ollama     :11434</div>
+                            <div>🟢 n8n        :5678</div>
+                            <div>🟢 Portainer  :9000</div>
+                            <div>🟢 Monitor    :7070</div>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('last-update').textContent =
+                    'Màj : ' + new Date().toLocaleTimeString('fr-FR');
+            } catch (e) {
+                document.getElementById('stats').innerHTML =
+                    '<div class="card crit"><div class="label">Erreur</div><div class="value" style="font-size:1rem">Service indisponible</div></div>';
+            }
+        }
+
+        update();
+        setInterval(update, 2000);
+    </script>
+</body>
+</html>

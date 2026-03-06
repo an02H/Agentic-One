@@ -1,0 +1,22 @@
+[Unit]
+Description=Agentic-One Lab Monitor (Rust/Actix)
+Documentation=https://github.com/an02H/Agentic-One
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=an02
+Group=an02
+WorkingDirectory=/home/an02/Agentic-One/services/monitoring
+ExecStart=/home/an02/Agentic-One/services/monitoring/target/release/lab_monitor
+Restart=always
+RestartSec=5
+# Sécurité : isolation du processus
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/an02/Agentic-One/services/monitoring
+
+[Install]
+WantedBy=multi-user.target
