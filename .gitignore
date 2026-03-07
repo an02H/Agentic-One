@@ -1,0 +1,24 @@
+# Données sensibles — NE JAMAIS COMMITTER
+.env
+*.env
+*.key
+*.pem
+*.secret
+
+# Vector Store (volumineux)
+services/brain/chroma_db/
+services/brain/data/*.pdf
+
+# Build Rust
+services/monitoring/target/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db

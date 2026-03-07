@@ -1,0 +1,14 @@
+{
+  "recommendations": [
+    "ms-vscode-remote.remote-ssh",
+    "GitHub.copilot",
+    "GitHub.copilot-chat",
+    "rust-lang.rust-analyzer",
+    "ms-python.python",
+    "ms-azuretools.vscode-docker",
+    "tamasfe.even-better-toml",
+    "mtxr.sqltools",
+    "redhat.vscode-yaml",
+    "esbenp.prettier-vscode"
+  ]
+}
