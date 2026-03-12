@@ -5,6 +5,7 @@
 *.pem
 *.secret
 *.ip
+*an02@
 
 # Vector Store (volumineux)
 services/brain/chroma_db/
