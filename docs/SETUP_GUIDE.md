@@ -3,7 +3,7 @@
 ## Prérequis
 
 - VM Ubuntu 24.04 LTS (12 vCPU / 32 Go RAM) avec Docker installé
-- Accès SSH : `ssh an02@192.168.10.216`
+- Accès SSH : `ssh xxx@192.168.x0.216`
 - VS Code avec Remote SSH configuré
 
 ---
@@ -33,7 +33,7 @@ Résultat attendu : tous les checks `✅ PASS`, 0 `❌ FAIL`.
 
 ## Étape 3 — Configurer Ollama
 
-Via Portainer (http://192.168.10.216:9000) → Conteneur Ollama → Environnement :
+Via Portainer (http://192.168.x0.216:9000) → Conteneur Ollama → Environnement :
 
 ```
 OLLAMA_HOST=0.0.0.0:11434
@@ -51,7 +51,7 @@ ollama pull mxbai-embed-large
 
 ## Étape 4 — Configurer n8n
 
-1. Ouvrir http://192.168.10.216:5678
+1. Ouvrir http://192.168.x0.216:5678
 2. Créer le compte administrateur initial
 3. Activer l'authentification dans Settings
 4. Importer le workflow : Menu ⋮ → Import → coller `config/n8n-gateway.json`
@@ -61,8 +61,8 @@ ollama pull mxbai-embed-large
 
 | Nom                | Type             | Valeur                              |
 |--------------------|------------------|-------------------------------------|
-| Ollama Local Core  | HTTP Request     | http://192.168.10.216:11434         |
-| ChromaDB Local     | HTTP Request     | http://192.168.10.216:8000          |
+| Ollama Local Core  | HTTP Request     | http://192.168.x0.216:11434         |
+| ChromaDB Local     | HTTP Request     | http://192.168.x0.216:8000          |
 
 ## Étape 5 — Déployer le monitoring Rust
 
@@ -86,7 +86,7 @@ sudo systemctl start lab-monitor
 sudo systemctl status lab-monitor
 ```
 
-Dashboard disponible sur : http://192.168.10.216:7070
+Dashboard disponible sur : http://192.168.x0.216:7070
 
 ## Étape 6 — Tester le pipeline RAG
 
@@ -107,7 +107,7 @@ python3 ingest.py
 ## Étape 7 — Tester l'API Gateway n8n
 
 ```bash
-curl -X POST http://192.168.10.216:5678/webhook/chat-gateway \
+curl -X POST http://192.168.x0.216:5678/webhook/chat-gateway \
   -H "Content-Type: application/json" \
   -d '{"prompt": "Décris l architecture du Lab Agentic-One"}'
 ```
@@ -118,10 +118,10 @@ curl -X POST http://192.168.10.216:5678/webhook/chat-gateway \
 
 | Service   | URL                                  | Statut attendu |
 |-----------|--------------------------------------|----------------|
-| n8n       | http://192.168.10.216:5678           | Login UI       |
-| Portainer | http://192.168.10.216:9000           | Dashboard       |
-| Monitoring| http://192.168.10.216:7070           | Dashboard Rust  |
-| Ollama    | http://192.168.10.216:11434/api/tags | JSON modèles   |
+| n8n       | http://192.168.x0.216:5678           | Login UI       |
+| Portainer | http://192.168.x0.216:9000           | Dashboard       |
+| Monitoring| http://192.168.x0.216:7070           | Dashboard Rust  |
+| Ollama    | http://192.168.x0.216:11434/api/tags | JSON modèles   |
 
 ---
 
